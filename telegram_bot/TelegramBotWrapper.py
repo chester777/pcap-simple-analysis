@@ -3,8 +3,6 @@ import logging
 
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, Filters
-from telegram.error import (TelegramError, Unauthorized, BadRequest,
-                            TimedOut, ChatMigrated, NetworkError)
 
 from errors.TelegramBot import *
 
@@ -25,11 +23,12 @@ class TelegramBotWrapper:
         updater = Updater(token=TELEGRAM_BOT_API_TOKEN, use_context=True)
         dispatcher = updater.dispatcher
 
-        start_handler = CommandHandler('start', self.start)
+        start_handler = CommandHandler('start', self.start_cmd)
         msg_handler = MessageHandler(Filters.all, self.msg_handler)
 
         dispatcher.add_handler(msg_handler)
         dispatcher.add_handler(start_handler)
+        dispatcher.add_error_handler(self.error_handler)
 
         logger.info('* Start Telegram Bot')
 
@@ -37,7 +36,7 @@ class TelegramBotWrapper:
         updater.idle()
 
     @staticmethod
-    def start(update, context):
+    def start_cmd(update, context):
         context.bot.send_message(
             chat_id=update.message.chat_id,
             text="I'm a bot, please talk to me!"
@@ -51,12 +50,12 @@ class TelegramBotWrapper:
                 # file handling
                 file_id = update.message.document.file_id
                 file_name = update.message.document.file_name
-                newFile = context.bot.get_file(file_id)
-                newFile.download(file_name)
+                new_file = context.bot.get_file(file_id)
+                new_file.download(file_name)
 
             else:
                 # text handling
-                 message = update.message.text
+                message = update.message.text
 
             context.bot.send_message(
                 chat_id=update.message.chat_id,
@@ -65,3 +64,7 @@ class TelegramBotWrapper:
 
         except Exception as e:
             print(e)
+
+    @staticmethod
+    def error_handler(update, context):
+        pass
