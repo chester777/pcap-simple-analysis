@@ -1,67 +1,45 @@
-import os
 import logging
+import threading
+import requests
+import time
+import json
+import asyncio
 
-from telegram.ext import Updater
-from telegram.ext import CommandHandler, MessageHandler, Filters
-from telegram.error import (TelegramError, Unauthorized, BadRequest,
-                            TimedOut, ChatMigrated, NetworkError)
+from GlobalVariable import *
+from telegram_bot.TelegramEnv import *
 
-from errors.TelegramBot import *
-
-TELEGRAM_BOT_API_TOKEN = os.getenv('TELEGRAM_BOT_API_TOKEN', None)
-
-if TELEGRAM_BOT_API_TOKEN is None:
-    raise TokenError()
-
-elif not len(TELEGRAM_BOT_API_TOKEN) > 0:
-    raise TokenError()
-
-logger = logging.getLogger('pcap-simple-analysis-logger')
+logger = logging.getLogger(LOGGER_NAME)
 
 
-class TelegramBotWrapper:
+class TelegramBot:
 
     def __init__(self):
-        updater = Updater(token=TELEGRAM_BOT_API_TOKEN, use_context=True)
-        dispatcher = updater.dispatcher
+        self._bot_thread_list = list()
+        self._lock = threading.Lock()
 
-        start_handler = CommandHandler('start', self.start)
-        msg_handler = MessageHandler(Filters.all, self.msg_handler)
+        _update_worker_thread = threading.Thread(target=self._run_update_worker)
+        _update_worker_thread.start()
 
-        dispatcher.add_handler(msg_handler)
-        dispatcher.add_handler(start_handler)
+    def _run_update_worker(self):
+        while True:
+            response = requests.get(TELEGRAM_BOT_API_GET_UPDATES_URL)
+            updates = json.loads(response.text)
 
-        logger.info('* Start Telegram Bot')
+            for update in updates[PLACE_HOLDER_UPDATE_RESULT]:
 
-        updater.start_polling()
-        updater.idle()
+                # get file to analysis
+                if PLACE_HOLDER_UPDATE_RESULT_DOCUMENT in update:
+                    with self._lock:
+                        asyncio.run(self._get_analysis_file())
 
-    @staticmethod
-    def start(update, context):
-        context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text="I'm a bot, please talk to me!"
-        )
+                # get command
+                elif PLACE_HOLDER_UPDATE_RESULT_ENTITIES in update:
+                    pass
 
-    @staticmethod
-    def msg_handler(update, context):
-        try:
-            message = 'Unknown Message'
-            if update.message.document is not None:
-                # file handling
-                file_id = update.message.document.file_id
-                file_name = update.message.document.file_name
-                newFile = context.bot.get_file(file_id)
-                newFile.download(file_name)
+            time.sleep(TELEGRAM_BOT_API_UPDATE_WAIT_TIME)
 
-            else:
-                # text handling
-                 message = update.message.text
+    async def _get_analysis_file(self):
+        pass
 
-            context.bot.send_message(
-                chat_id=update.message.chat_id,
-                text=message
-            )
-
-        except Exception as e:
-            print(e)
+    def _cmd_handler(self):
+        pass

@@ -1,0 +1,27 @@
+import os
+
+from errors.TelegramBot import *
+
+TELEGRAM_BOT_API_TOKEN = os.getenv('TELEGRAM_BOT_API_TOKEN', None)
+
+if TELEGRAM_BOT_API_TOKEN is None:
+    raise TokenError()
+
+elif not len(TELEGRAM_BOT_API_TOKEN) > 0:
+    raise TokenError()
+
+TELEGRAM_BOT_API_UPDATE_WAIT_TIME = 0.5
+
+TELEGRAM_BOT_API_BOT_URL = 'https://api.telegram.org/bot' + TELEGRAM_BOT_API_TOKEN + '/'
+TELEGRAM_BOT_API_GET_UPDATES_URL = TELEGRAM_BOT_API_BOT_URL + 'getUpdates'
+
+TELEGRAM_BOT_API_CMD_START = '/start'
+TELEGRAM_BOT_API_CMD_STOP = '/stop'
+TELEGRAM_BOT_API_CMD_HELP = '/help'
+
+PLACE_HOLDER_UPDATE_TIMESTAMP = 'date'
+PLACE_HOLDER_UPDATE_ID = 'update_id'
+PLACE_HOLDER_UPDATE_RESULT = 'result'
+PLACE_HOLDER_UPDATE_RESULT_DOCUMENT = 'document'
+PLACE_HOLDER_UPDATE_RESULT_ENTITIES = 'entities'
+
