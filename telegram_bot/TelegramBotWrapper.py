@@ -13,7 +13,16 @@ logger = logging.getLogger(LOGGER_NAME)
 
 class TelegramBot:
 
-    def __init__(self):
+    def __init__(self, want_update_things=None):
+
+        if want_update_things is not None:
+            for update_thing in want_update_things:
+                if update_thing == 'file_handle':
+                    PLACE_HOLDER_UPDATE_RESULT_DOCUMENT[1] = True
+
+                elif update_thing == 'command':
+                    PLACE_HOLDER_UPDATE_RESULT_ENTITIES[1] = True
+
         self._bot_thread_list = list()
         self._lock = threading.Lock()
 
@@ -28,18 +37,21 @@ class TelegramBot:
             for update in updates[PLACE_HOLDER_UPDATE_RESULT]:
 
                 # get file to analysis
-                if PLACE_HOLDER_UPDATE_RESULT_DOCUMENT in update:
+                if (PLACE_HOLDER_UPDATE_RESULT_DOCUMENT[0] in update
+                    and PLACE_HOLDER_UPDATE_RESULT_DOCUMENT[1] is True):
                     with self._lock:
-                        asyncio.run(self._get_analysis_file())
+                        asyncio.run(self._get_analysis_file(update))
 
                 # get command
-                elif PLACE_HOLDER_UPDATE_RESULT_ENTITIES in update:
-                    pass
+                elif (PLACE_HOLDER_UPDATE_RESULT_ENTITIES[0] in update
+                    and PLACE_HOLDER_UPDATE_RESULT_ENTITIES[1] is True):
+                    with self._lock:
+                        asyncio.run(self._cmd_handler(update))
 
             time.sleep(TELEGRAM_BOT_API_UPDATE_WAIT_TIME)
 
-    async def _get_analysis_file(self):
+    async def _get_analysis_file(self, update):
         pass
 
-    def _cmd_handler(self):
+    async def _cmd_handler(self, update):
         pass
