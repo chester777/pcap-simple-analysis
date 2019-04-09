@@ -3,7 +3,7 @@ import threading
 import requests
 import time
 import json
-import asyncio
+import random
 
 from GlobalVariable import *
 from telegram_bot.TelegramEnv import *
@@ -37,33 +37,74 @@ class TelegramBot:
 
                 # get file to analysis
                 if (PLACE_HOLDER_UPDATE_RESULT_DOCUMENT in update[PLACE_HOLDER_MESSAGE]
-                    and self._file_handle is True):
+                        and self._file_handle is True):
                     with self._lock:
-                        asyncio.run(self._get_analysis_file(update))
+                        result = self._get_analysis_file(update)
+
+                        if result is True:
+                            pass
+                        else:
+                            pass
 
                 # get command
                 elif (PLACE_HOLDER_UPDATE_RESULT_ENTITIES in update[PLACE_HOLDER_MESSAGE]
-                    and self._command_handle is True):
+                        and self._command_handle is True):
                     with self._lock:
-                        asyncio.run(self._cmd_handler(update))
+                        result = self._cmd_handler(update)
+
+                        if result is True:
+                            pass
+                        else:
+                            pass
 
             time.sleep(TELEGRAM_BOT_API_UPDATE_WAIT_TIME)
 
-    async def _get_analysis_file(self, update):
-        message = update[PLACE_HOLDER_MESSAGE]
-        file_id = message[PLACE_HOLDER_UPDATE_RESULT_DOCUMENT][PLACE_HOLDER_UPDATE_RESULT_DOCUMENT_FILE_ID]
-        file_name = message[PLACE_HOLDER_UPDATE_RESULT_DOCUMENT][PLACE_HOLDER_UPDATE_RESULT_DOCUMENT_FILE_NAME]
-        file_detail_url = TELEGRAM_BOT_API_GET_FILE_DETAIL + f'{file_id}'
-        file_detail_response = requests.get(file_detail_url)
-        file_detail_json = json.loads(file_detail_response.text)
-        file_path_telegram_server = file_detail_json[PLACE_HOLDER_FILE_RESULT][PLACE_HOLDER_FILE_PATH]
-        file_download_url = TELEGRAM_BOT_API_DOWNLOAD_BASE_URL + file_path_telegram_server
+    @staticmethod
+    def _get_analysis_file(update):
+        try:
+            message = update[PLACE_HOLDER_MESSAGE]
+            file_id = message[PLACE_HOLDER_UPDATE_RESULT_DOCUMENT][PLACE_HOLDER_UPDATE_RESULT_DOCUMENT_FILE_ID]
+            file_name = message[PLACE_HOLDER_UPDATE_RESULT_DOCUMENT][PLACE_HOLDER_UPDATE_RESULT_DOCUMENT_FILE_NAME]
+            file_detail_url = TELEGRAM_BOT_API_GET_FILE_DETAIL + f'{file_id}'
+            file_detail_response = requests.get(file_detail_url)
+            file_detail_json = json.loads(file_detail_response.text)
+            file_path_telegram_server = file_detail_json[PLACE_HOLDER_FILE_RESULT][PLACE_HOLDER_FILE_PATH]
+            file_download_url = TELEGRAM_BOT_API_DOWNLOAD_BASE_URL + file_path_telegram_server
 
-        file_download_response = requests.get(file_download_url)
+            file_download_response = requests.get(file_download_url)
+            file_name_prefix = f'{time.time()}_{random.randrange(1,10000)}'
+            file_path_local = f'{PCAP_DOWNLOAD_PATH}/{file_name_prefix}_{file_name}'
 
-        file_path_local = f'{PCAP_DOWNLOAD_PATH}/{file_name}'
-        with open(file_path_local, 'wb') as fd:
-            fd.write(file_download_response.content)
+            with open(file_path_local, 'wb') as fd:
+                fd.write(file_download_response.content)
 
-    async def _cmd_handler(self, update):
-        pass
+            return True
+
+        except Exception as e:
+            logger.error(e)
+            return False
+
+    @staticmethod
+    def _cmd_handler(update):
+        try:
+            command = update[PLACE_HOLDER_MESSAGE][PLACE_HOLDER_UPDATE_RESULT_TEXT]
+
+            if command == TELEGRAM_BOT_API_CMD_HELP:
+                params = dict(
+                    chat_id=update[PLACE_HOLDER_MESSAGE]['chat']['id'],
+                    text=MESSAGE_HELP
+                )
+
+                response = requests.get(TELEGRAM_BOT_API_SEND_MESSAGE, params=params)
+                if response.status_code is 200:
+                    return True
+
+            elif command == TELEGRAM_BOT_API_CMD_START:
+                pass
+            elif command == TELEGRAM_BOT_API_CMD_STOP:
+                pass
+
+            return True
+        except Exception as e:
+            logger.error(e)
+            return False
