@@ -4,9 +4,11 @@ import requests
 import time
 import json
 import random
+import asyncio
 
 from GlobalVariable import *
 from telegram_bot.TelegramEnv import *
+from packet_analysis.PySharkWrapper import *
 
 logger = logging.getLogger(LOGGER_NAME)
 
@@ -46,8 +48,9 @@ class TelegramBot:
                     with self._lock:
                         result = self._get_analysis_file(update)
 
-                        if result is True:
+                        if result is not False:
                             self._handled_update_id_list.append(update[PLACE_HOLDER_UPDATE_ID])
+
 
                 # get command
                 elif (PLACE_HOLDER_UPDATE_RESULT_ENTITIES in update[PLACE_HOLDER_MESSAGE]
@@ -79,7 +82,7 @@ class TelegramBot:
             with open(file_path_local, 'wb') as fd:
                 fd.write(file_download_response.content)
 
-            return True
+            return file_path_local
 
         except Exception as e:
             logger.error(e)
