@@ -22,6 +22,7 @@ class TelegramBot:
         self._file_handle = file_handle
         self._command_handle = command_handle
 
+        self._handled_update_id_list = list()
         self._bot_thread_list = list()
         self._lock = threading.Lock()
 
@@ -35,6 +36,10 @@ class TelegramBot:
 
             for update in updates[PLACE_HOLDER_UPDATE_RESULT]:
 
+                # check update is in handled update list
+                for update[PLACE_HOLDER_UPDATE_ID] in self._handled_update_id_list:
+                    continue
+
                 # get file to analysis
                 if (PLACE_HOLDER_UPDATE_RESULT_DOCUMENT in update[PLACE_HOLDER_MESSAGE]
                         and self._file_handle is True):
@@ -42,9 +47,7 @@ class TelegramBot:
                         result = self._get_analysis_file(update)
 
                         if result is True:
-                            pass
-                        else:
-                            pass
+                            self._handled_update_id_list.append(update[PLACE_HOLDER_UPDATE_ID])
 
                 # get command
                 elif (PLACE_HOLDER_UPDATE_RESULT_ENTITIES in update[PLACE_HOLDER_MESSAGE]
@@ -53,9 +56,7 @@ class TelegramBot:
                         result = self._cmd_handler(update)
 
                         if result is True:
-                            pass
-                        else:
-                            pass
+                            self._handled_update_id_list.append(update[PLACE_HOLDER_UPDATE_ID])
 
             time.sleep(TELEGRAM_BOT_API_UPDATE_WAIT_TIME)
 
