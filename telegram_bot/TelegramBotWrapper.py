@@ -4,11 +4,9 @@ import requests
 import time
 import json
 import random
-import asyncio
 
 from GlobalVariable import *
 from telegram_bot.TelegramEnv import *
-from packet_analysis.PySharkWrapper import *
 
 logger = logging.getLogger(LOGGER_NAME)
 

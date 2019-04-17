@@ -8,8 +8,11 @@ db/
 sql/
 pcap_files/
 
+.DS_Store
+.DS_Store?
+
 *.pyc
 *.log
-*.sql
 *.db
 *.pcapng
+*.sql
