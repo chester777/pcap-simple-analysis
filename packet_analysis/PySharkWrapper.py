@@ -35,5 +35,22 @@ class PySharkWrapper:
         _result = self._db_handler.insert_into_packet_data(_packet)
 
     def _packet_statistics(self, _pcap_id):
-        _packet_statistics = dict()
+        _packet_statistics = dict(
+            ip_frequency=dict(
+                total=dict(),
+                src_ip=dict(),
+                dst_ip=dict()
+            ),
+            layers_frequency=dict(),
+            highest_layer_frequency=dict(),
+            length_rate=dict()
+        )
+
+        _ip_list = dict()
+
+        _result_list = self._db_handler.select_by_pcap_id(_pcap_id)
+
+        for _result in _result_list:
+            pass
+
         return _packet_statistics

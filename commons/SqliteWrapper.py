@@ -21,12 +21,12 @@ class SqliteHelper:
 
         try:
             if _sql_param is None:
-                self._db.execute(_sql)
+                _result = self._db.execute(_sql)
             else:
-                self._db.execute(_sql, _sql_param)
+                _result = self._db.execute(_sql, _sql_param)
 
             self._conn.commit()
-            return True
+            return _result
 
         except Exception as e:
             logger.error(e)
@@ -64,3 +64,16 @@ class PacketSqliteHelper(SqliteHelper):
 
         return _result
 
+    def select_by_pcap_id(self, _pcap_id):
+
+        _sql = self._read_sql_file(PCAP_SELECT_BY_PCAP_ID_QUERY_PATH)
+        _valid_pcap_id = self._check_valid_data(_pcap_id)
+
+        _query_paran = dict(
+            pcap_id=_valid_pcap_id
+        )
+
+        _result_list = self._execute_query(_sql, _query_paran)
+
+        for _result in _result_list.fetchall():
+            yield _result
