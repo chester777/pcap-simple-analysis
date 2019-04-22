@@ -46,11 +46,43 @@ class PySharkWrapper:
             length_rate=dict()
         )
 
-        _ip_list = dict()
-
         _result_list = self._db_handler.select_by_pcap_id(_pcap_id)
 
         for _result in _result_list:
-            pass
+
+            # total IP count
+            _iterate_flag = False
+            for _ip, _count in _packet_statistics['ip_frequency']['total'].items():
+                if _result['src_ip'] == _ip or _result['dst_ip'] == _ip:
+                    _packet_statistics['ip_frequency']['total'][_ip] = _count + 1
+                    _iterate_flag = True
+
+            if _iterate_flag is False:
+                # if total dictionary is empty
+                _packet_statistics['ip_frequency']['total'][_result['src_ip']] = 1
+                _packet_statistics['ip_frequency']['total'][_result['dst_ip']] = 1
+
+            # source IP count
+            _iterate_flag = False
+            for _ip, _count in _packet_statistics['ip_frequency']['src_ip'].items():
+                if _result['src_ip'] == _ip:
+                    _packet_statistics['ip_frequency']['src_ip'][_ip] = _count + 1
+                    _iterate_flag = True
+
+            if _iterate_flag is False:
+                # if source dictionary is empty
+                _packet_statistics['ip_frequency']['src_ip'][_result['src_ip']] = 1
+
+            # destination IP count
+            _iterate_flag = False
+            for _ip, _count in _packet_statistics['ip_frequency']['dst_ip'].items():
+                if _result['dst_ip'] == _ip:
+                    _packet_statistics['ip_frequency']['dst_ip'][_ip] = _count + 1
+                    _iterate_flag = True
+
+            if _iterate_flag is False:
+                # if destination dictionary is empty
+                _packet_statistics['ip_frequency']['dst_ip'][_result['dst_ip']] = 1
+
 
         return _packet_statistics

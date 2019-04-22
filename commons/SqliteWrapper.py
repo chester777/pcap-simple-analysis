@@ -1,6 +1,5 @@
 import sqlite3
 import logging
-
 from commons.SqliteEnv import *
 from GlobalVariable import *
 
@@ -69,11 +68,20 @@ class PacketSqliteHelper(SqliteHelper):
         _sql = self._read_sql_file(PCAP_SELECT_BY_PCAP_ID_QUERY_PATH)
         _valid_pcap_id = self._check_valid_data(_pcap_id)
 
-        _query_paran = dict(
+        _query_param = dict(
             pcap_id=_valid_pcap_id
         )
 
-        _result_list = self._execute_query(_sql, _query_paran)
+        _result_list = self._execute_query(_sql, _query_param)
 
         for _result in _result_list.fetchall():
-            yield _result
+            _result_dict = dict(
+                pcap_id=_result[0],
+                packet_no=_result[1],
+                src_ip=_result[2],
+                dst_ip=_result[3],
+                highest_protocol=_result[4],
+                layers=_result[5].split(','),
+                packet_length=_result[6]
+            )
+            yield _result_dict
