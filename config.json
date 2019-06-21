@@ -1,0 +1,9 @@
+{
+  "log": {
+    "path": "./logs"
+  },
+  "path": {
+    "pcap_download": "./pcap_files",
+    "db": "./db/pcap_simple_analysis.db"
+  }
+}

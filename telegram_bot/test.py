@@ -1,10 +1,14 @@
-from telegram_bot.TelegramBotWrapper import TelegramBot
-from commons.LogWrapper import LogWrapper
+from telegram_bot.telegram_bot_warpper import TelegramBot
+from commons.log_wrapper import MagicLogger
+from globals import *
 
-class Main:
-    def __init__(self):
-        LogWrapper('pcap-simple-analysis-logger')
-        TelegramBot()
+logger = MagicLogger(LOGGER_NAME)
+
+
+def main():
+    logger.info('[*] Start')
+    TelegramBot()
+
 
 if __name__ == '__main__':
-    Main()
+    main()

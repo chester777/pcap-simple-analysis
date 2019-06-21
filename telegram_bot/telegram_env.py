@@ -1,6 +1,6 @@
 import os
 
-from errors.TelegramBot import *
+from errors.telegram_bot import *
 
 TELEGRAM_BOT_API_TOKEN = os.getenv('TELEGRAM_BOT_API_TOKEN', None)
 

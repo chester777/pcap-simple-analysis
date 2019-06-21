@@ -5,13 +5,21 @@ import time
 import json
 import random
 
-from GlobalVariable import *
-from telegram_bot.TelegramEnv import *
+from globals import *
+from telegram_bot.telegram_env import *
+
+from commons.sqlite_wrapper import SQLiteHelper
+from commons.db_models import HandledMsg
+
 
 logger = logging.getLogger(LOGGER_NAME)
 
 
-class TelegramBot:
+class TelegramBot(threading.Thread):
+
+    _handled_update_id_list = list()
+    _bot_thread_list = list()
+    _thread_lock = threading.Lock()
 
     def __init__(
             self,
@@ -19,17 +27,23 @@ class TelegramBot:
             command_handle=True
          ):
 
+        threading.Thread.__init__(self)
+
         self._file_handle = file_handle
         self._command_handle = command_handle
 
-        self._handled_update_id_list = list()
-        self._bot_thread_list = list()
-        self._lock = threading.Lock()
+        self._init_database()
 
-        _update_worker_thread = threading.Thread(target=self._run_update_worker)
-        _update_worker_thread.start()
+    def _init_database(self):
+        _arg = ArgParser()
+        _conf = ConfigParser(_arg.config_path)
+        self._db = SQLiteHelper(_conf.db_path)
 
-    def _run_update_worker(self):
+        with DB_LOCK:
+            self._db.session.query(HandledMsg).all()
+
+    def run(self):
+
         while True:
             response = requests.get(TELEGRAM_BOT_API_GET_UPDATES_URL)
             updates = json.loads(response.text)
@@ -37,25 +51,32 @@ class TelegramBot:
             for update in updates[PLACE_HOLDER_UPDATE_RESULT]:
 
                 # check update is in handled update list
-                for update[PLACE_HOLDER_UPDATE_ID] in self._handled_update_id_list:
+                _continue_flag = False
+                if update[PLACE_HOLDER_UPDATE_ID] in self._handled_update_id_list:
+                    _continue_flag = True
+                    break
+
+                if _continue_flag is True:
                     continue
 
                 # get file to analysis
                 if (PLACE_HOLDER_UPDATE_RESULT_DOCUMENT in update[PLACE_HOLDER_MESSAGE]
                         and self._file_handle is True):
-                    with self._lock:
-                        result = self._get_analysis_file(update)
 
-                        if result is not False:
-                            self._handled_update_id_list.append(update[PLACE_HOLDER_UPDATE_ID])
+                    result = self._get_analysis_file(update)
 
+                    if result is not False:
+                        self._handled_update_id_list.append(update[PLACE_HOLDER_UPDATE_ID])
+                        _temp_msg = HandledMsg(timestamp=int(time.time()),
+                                               update_id=update[PLACE_HOLDER_UPDATE_ID])
+                        with DB_LOCK:
+                            self._db.session.add(_temp_msg)
 
                 # get command
                 elif (PLACE_HOLDER_UPDATE_RESULT_ENTITIES in update[PLACE_HOLDER_MESSAGE]
-                        and self._command_handle is True):
-                    with self._lock:
-                        result = self._cmd_handler(update)
+                      and self._command_handle is True):
 
+                        result = self._cmd_handler(update)
                         if result is True:
                             self._handled_update_id_list.append(update[PLACE_HOLDER_UPDATE_ID])
 

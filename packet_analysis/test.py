@@ -1,9 +1,10 @@
-from packet_analysis.PySharkWrapper import PySharkWrapper
-from commons.LogWrapper import LogWrapper
+from packet_analysis.pyshark_wrapper import PySharkWrapper
+from commons.log_wrapper import MagicLogger
+from globals import *
 
 class Main:
     def __init__(self):
-        LogWrapper('pcap-simple-analysis-logger')
+        MagicLogger(LOGGER_NAME)
         packet_analysis = PySharkWrapper()
         result = packet_analysis.result(
             _pcap_id=0,

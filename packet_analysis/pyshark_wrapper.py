@@ -1,5 +1,5 @@
 import pyshark
-from commons.SqliteWrapper import PacketSqliteHelper
+from commons.sqlite_wrapper import PacketSqliteHelper
 
 
 class PySharkWrapper:
@@ -84,5 +84,11 @@ class PySharkWrapper:
                 # if destination dictionary is empty
                 _packet_statistics['ip_frequency']['dst_ip'][_result['dst_ip']] = 1
 
+            # layer frequency count
+            for _layer, _count in _packet_statistics['layers_frequency'].items():
+                _iterate_flag = False
+                for _cur_layer in _result['layers']:
+                    if _layer == _cur_layer:
+                        _packet_statistics['layers_frequency'][str(_layer)] = _count + 1
 
         return _packet_statistics
