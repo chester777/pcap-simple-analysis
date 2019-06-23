@@ -10,13 +10,14 @@ if TELEGRAM_BOT_API_TOKEN is None:
 elif not len(TELEGRAM_BOT_API_TOKEN) > 0:
     raise TokenError()
 
-TELEGRAM_BOT_API_UPDATE_WAIT_TIME = 0.5
+TELEGRAM_BOT_API_UPDATE_WAIT_TIME = 0
 
 TELEGRAM_BOT_API_BASE_URL = 'https://api.telegram.org/bot' + TELEGRAM_BOT_API_TOKEN + '/'
 TELEGRAM_BOT_API_DOWNLOAD_BASE_URL = 'https://api.telegram.org/file/bot' + TELEGRAM_BOT_API_TOKEN + '/'
 TELEGRAM_BOT_API_GET_UPDATES_URL = TELEGRAM_BOT_API_BASE_URL + 'getUpdates'
 TELEGRAM_BOT_API_GET_FILE_DETAIL = TELEGRAM_BOT_API_BASE_URL + 'getFile?file_id='
 TELEGRAM_BOT_API_SEND_MESSAGE = TELEGRAM_BOT_API_BASE_URL + 'sendMessage'
+TELEGRAM_BOT_API_SEND_PHOTO = TELEGRAM_BOT_API_BASE_URL + 'sendPhoto'
 
 TELEGRAM_BOT_API_CMD_START = '/start'
 TELEGRAM_BOT_API_CMD_STOP = '/stop'
@@ -35,7 +36,7 @@ PLACE_HOLDER_UPDATE_RESULT_ENTITIES = 'entities'
 PLACE_HOLDER_FILE_RESULT = 'result'
 PLACE_HOLDER_FILE_PATH = 'file_path'
 
-MESSAGE_HELP = "'pcap simple analysis' is a tool for pcap file to analysis packet data simply. "
-MESSAGE_HELP += 'It provides simple statistics of packet data, and simple network flow by images. '
-MESSAGE_HELP += 'If you want to analysis pcap file, just drag & drop file in this chat room. '
-MESSAGE_HELP += 'Good luck your analysis!'
+MESSAGE_HELP = "'pcap simple analysis' is a tool for pcap file to analysis packet data simply.\n"
+MESSAGE_HELP += 'It provides simple statistics of packet data, and simple network flow by images.\n'
+MESSAGE_HELP += 'If you want to analysis pcap file, just drag & drop file in this chat room.\n'
+MESSAGE_HELP += 'Good luck your analysis!\n'

@@ -3,11 +3,10 @@ import logging.handlers
 import datetime
 import os
 
+from errors.log_wrapper import ParamError
+from commons.globals import *
 from commons.arg_parser import ArgParser
 from commons.config_parser import ConfigParser
-
-from errors.log_wrapper import ParamError
-from globals import *
 
 
 class MagicLogger:
@@ -50,7 +49,10 @@ class MagicLogger:
             # if you see log in file,
 
             _log_date = datetime.datetime.now().strftime(DATE_FORMAT)
-            _log_file_path = f'{self._conf.log_path}/{self._log_file_name}-{_log_date}.{LOG_EXT}'
+            _log_file_path = '%s/%s-%s.%s' % (self._conf.log_path,
+                                              self._log_file_name,
+                                              _log_date,
+                                              LOG_EXT)
 
             _file_handler = logging.FileHandler(
                 filename=_log_file_path,

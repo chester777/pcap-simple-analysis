@@ -8,20 +8,21 @@ class HandledMsg(Base):
     __tablename__ = 'handled_massage_list'
 
     timestamp = Column(Integer)
-    update_id = Column(String, primary_key=True)
+    update_id = Column(Integer, primary_key=True)
 
     def __init__(self, timestamp, update_id):
         self.timestamp = timestamp
         self.update_id = update_id
 
     def __repr__(self):
-        return f"<HandledMsg('{self.timestamp}','{self.update_id}')>"
+        return "<HandledMsg('%s','%s')>" % (self.timestamp, self.update_id)
 
 
 class PacketData(Base):
     __tablename__ = 'packet_data'
 
-    pcap_id = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    pcap_id = Column(String)
     packet_num = Column(Integer)
     src_ip = Column(String)
     dst_ip = Column(String)
@@ -39,6 +40,11 @@ class PacketData(Base):
         self.packet_length = packet_length
 
     def __repr__(self):
-        _result = (f"<PacketData('{self.pcap_id}','{self.packet_num}','{self.src_ip}','{self.dst_ip}),"
-                   f"'{self.highest_protocol}', '{self.layers}', '{self.packet_length}'>'")
+        _result = "<PacketData('%s','%s','%s','%s','%s','%s','%s')>" % (self.pcap_id,
+                                                                        self.packet_num,
+                                                                        self.src_ip,
+                                                                        self.dst_ip,
+                                                                        self.highest_protocol,
+                                                                        self.layers,
+                                                                        self.packet_length)
         return _result

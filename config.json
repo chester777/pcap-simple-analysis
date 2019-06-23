@@ -4,6 +4,8 @@
   },
   "path": {
     "pcap_download": "./pcap_files",
-    "db": "./db/pcap_simple_analysis.db"
+    "db_dir": "./db",
+    "db": "db/pcap_simple_analysis.db",
+    "image": "./network_flow_images"
   }
 }

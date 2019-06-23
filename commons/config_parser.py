@@ -12,9 +12,8 @@ class ConfigParser:
     def log_path(self):
         if 'log' in self._conf:
             if 'path' in self._conf['log']:
-                if (len(self._conf['log']['path']) > 0 and
-                    type(self._conf['log']['path']) is str and
-                    os.path.exists(self._conf['log']['path']) is True):
+                if (len(self._conf['log']['path']) > 0
+                        and type(self._conf['log']['path']) is str):
                     return self._conf['log']['path']
         return None
 
@@ -30,4 +29,18 @@ class ConfigParser:
         if 'path' in self._conf:
             if 'db' in self._conf['path']:
                 return self._conf['path']['db']
+        return None
+
+    @property
+    def db_dir_path(self):
+        if 'path' in self._conf:
+            if 'db_dir' in self._conf['path']:
+                return self._conf['path']['db_dir']
+        return None
+
+    @property
+    def image_path(self):
+        if 'path' in self._conf:
+            if 'image' in self._conf['path']:
+                return self._conf['path']['image']
         return None
